@@ -2,7 +2,7 @@ import pandas as pd
 import requests
 import time
 
-csv_file = r"C:\Users\suhas\Desktop\mini-pro\ml_model-\imputation\master_pollution_MICE_imputed.csv"
+csv_file = r"C:\Users\suhas\Desktop\CHIRARANGA FAREWELL\master_pollution_MICE_imputed"
 url = "http://127.0.0.1:5001/api/pollution/add"
 
 print("Reading CSV...")
