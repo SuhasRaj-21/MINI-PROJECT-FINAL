@@ -45,8 +45,8 @@ const Prediction = () => {
     setLoading(true);
     setError(null);
     try {
-      // Connect to Node.js backend so data is saved to DB and Blockchain
-      const response = await fetch('http://127.0.0.1:5001/api/pollution/add', {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const response = await fetch(`${apiUrl}/pollution/add`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...formData, zone: 'Custom Zone' }),

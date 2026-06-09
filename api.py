@@ -83,7 +83,28 @@ def debug_models():
 def predict(data: PredictionInput):
     # Fix the boolean evaluation for custom objects
     if lstm_model is None or xgb_model is None or meta_learner is None or scaler_x is None or scaler_y is None:
-        raise HTTPException(status_code=503, detail="Ensemble models not loaded. Please train first.")
+        # Heuristic fallback calculation if models are not loaded
+        predicted_pm25 = data.pm25 * 0.95
+        sub_pm25 = (predicted_pm25 * 2.5) if predicted_pm25 < 60 else (150 + (predicted_pm25 - 60) * 1.5)
+        sub_pm10 = (data.pm10 * 0.8)
+        sub_co = (data.co * 15.0)
+        
+        base_aqi = max(sub_pm25, sub_pm10, sub_co)
+        
+        traffic_factor = (data.vehicle_count / 1000.0) ** 1.5
+        wind_factor = 1.0 / (data.speed + 0.1)
+        
+        aqi_1hr = round(base_aqi + (traffic_factor * wind_factor * 30.0), 2)
+        aqi_24hr = round(aqi_1hr * 1.15, 2)
+        
+        risk_level = get_risk_level(aqi_1hr)
+
+        return {
+            "aqi_1hr": aqi_1hr,
+            "aqi_24hr": aqi_24hr,
+            "risk_level": risk_level,
+            "fallback": True
+        }
 
     try:
         current_hour = datetime.datetime.now().hour
